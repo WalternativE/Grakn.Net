@@ -7,6 +7,8 @@
 #r "./bin/Release/net461/Google.Protobuf.dll"
 #r "./bin/Release/net461/System.Interactive.Async.dll"
 
+#load "GraknUtil.fs"
+
 open System.Threading
 open System.Threading.Tasks
 
@@ -24,7 +26,11 @@ let listenToResponses () = async {
     let rec listenToResponses isNext = async {
         match isNext with
         | true ->
-            printfn "%A" tx.ResponseStream.Current
+            let resp = tx.ResponseStream.Current
+            let qr = resp.QueryResult
+            let d = resp.Done
+            let ii = resp.IteratorId
+            printfn "QueryResult %A Done %A IteratorId %A" qr d ii
             let! n = tx.ResponseStream.MoveNext(CancellationToken.None) |> Async.AwaitTask
             return! listenToResponses n
         | false -> ()
@@ -33,32 +39,19 @@ let listenToResponses () = async {
     return! listenToResponses n
 }
 
-let q = Query()
-q.Value <- "match $x isa company; limit 2; get;"
-let eq = ExecQuery()
-eq.Query <- q
-let i = Infer()
-i.Value <- true
-eq.Infer <- i
+open FsGrakn.Util
 
-let txRequest = TxRequest()
-txRequest.ExecQuery <- eq
-
-let openRequest = TxRequest()
-let o = Open()
-let ks = Keyspace();
-ks.Value <- "training"
-o.Keyspace <- ks
-openRequest.Open <- o
+let o = openRequest "academy" Read
+let q = defaultExecQueryRequest "match $x isa company; limit 2; get;"
 
 let cts = CancellationTokenSource()
 Async.StartAsTask(listenToResponses(), TaskCreationOptions.None, cts.Token)
 
-tx.RequestStream.WriteAsync(openRequest)
+tx.RequestStream.WriteAsync(o)
 |> Async.AwaitTask
 |> Async.RunSynchronously
 
-tx.RequestStream.WriteAsync(txRequest)
+tx.RequestStream.WriteAsync(q)
 |> Async.AwaitTask
 |> Async.RunSynchronously
 
