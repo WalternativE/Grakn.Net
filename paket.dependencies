@@ -6,7 +6,14 @@ nuget Google.Protobuf
 nuget Grpc.Core
 
 group Build
-source https://api.nuget.org/v3/index.json
+    source https://api.nuget.org/v3/index.json
 
-nuget FAKE
-nuget Grpc.Tools
+    nuget FAKE
+    nuget Grpc.Tools
+
+# this is a hack as pure netstandard2.0 projects still have problems in FSI
+# we need these packages to get the correct runtime references in interactive sessions
+group Fsi
+    source https://api.nuget.org/v3/index.json
+
+    nuget NETStandard.Library.NETFramework

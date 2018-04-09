@@ -1,6 +1,36 @@
 # Grakn.Net
 
+**This repo is extremely experimental. There is no guarantee that anything works and it might even kill your Grakn server. Do not use in production!**
+
 This is the WIP repo for a gRPC based [Grakn](https://grakn.ai/) access library for the .NET runtime.
+
+Currently all development happens in this [fsx script](https://github.com/WalternativE/Grakn.Net/blob/master/src/FsGrakn/Script.fsx) until I figured out the best way to proceed with the API development.
+
+Things I'm currently thinking about are:
+
+- Concurrency model for working with a Grakn transaction (maybe MailBox Processors, maybe Hopac, maybe Rx.NET, maybe TaskBuilder.fs or just async computation expressions all the way)
+- DSL for message creation and combination
+- Higher Levle DSL for working with the Knowledge graph
+- F#/C# interfaces for all .NET clients
+- CI/CD - testing pretty much always needs a running Grakn instance
+- packaging
+
+## Requirements
+
+If you work on Windows make sure you have .NET framework >= 4.6.1 installed.
+
+On MacOS or Linux you'll need a recent Mono version (>= 5.0 should be fine).
+
+Regardless of your operating system make sure that you have the dotnet sdk (including the dotnet cli) installed (version >= 2 should be ok).
+
+## Building/Developing
+
+To restore the dependencies and build the projects execute either `.\build.cmd` or `./build.sh`.
+
+If you work on Windows Visual Studio 2017 is currently supported. The prefered development environment is Visual Studio Code with the Ionide and Omnisharp plugins installed.
+
+## Generating gRPC messages and client
+### FYI: You can skip this if you don't want to update the existing files from the specs
 
 In order to generate the message classes you will have to execute
 

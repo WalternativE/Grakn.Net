@@ -581,3 +581,13 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     FAKE (4.64.11)
     Grpc.Tools (1.10.1)
+
+GROUP Fsi
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    Microsoft.NETCore.Platforms (2.0.1) - restriction: >= net461
+    NETStandard.Library (2.0.1) - restriction: >= net461
+      Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (>= monoandroid) (>= monotouch) (&& (>= net45) (< portable-net451+win81+wpa81)) (&& (< net45) (>= netstandard1.1) (< portable-net451+win81+wpa81)) (&& (< net45) (>= netstandard1.2) (< netstandard1.3) (< wpa81)) (&& (< net45) (>= netstandard1.3) (< netstandard1.4) (< wpa81)) (&& (< net45) (>= netstandard1.4) (< netstandard1.5) (< wpa81)) (&& (< net45) (>= netstandard1.5) (< netstandard1.6) (< wpa81)) (&& (< net45) (>= netstandard1.6) (< netstandard2.0) (< wpa81)) (&& (< net45) (>= netstandard2.0)) (&& (>= net451) (< netstandard1.3)) (&& (>= net46) (< netstandard1.4)) (>= net461) (>= netcoreapp2.0) (&& (>= netstandard1.0) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8+wp8+wpa81) (< portable-net45+win8+wpa81)) (&& (< netstandard1.0) (>= portable-net45+win8+wpa81) (< portable-net451+win81+wpa81)) (&& (< netstandard1.0) (>= portable-net451+win81+wpa81)) (&& (< netstandard1.3) (>= wpa81)) (&& (< netstandard1.5) (>= uap10.0)) (>= uap10.1) (>= xamarinios) (>= xamarinmac) (>= xamarintvos) (>= xamarinwatchos)
+    NETStandard.Library.NETFramework (2.0.0-preview2-25405-01)
+      Microsoft.NETCore.Platforms (>= 2.0.0-preview2-25405-01) - restriction: >= net461
+      NETStandard.Library (>= 2.0.0-preview2-25401-01) - restriction: >= net461

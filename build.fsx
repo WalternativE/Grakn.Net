@@ -11,8 +11,7 @@ open System
 // Build variables
 // --------------------------------------------------------------------------------------
 
-let buildDir  = "./build/"
-let appReferences = !! "/**/*.fsproj"
+// let appReferences = !! "/**/*.*proj"
 let dotnetcliVersion = "2.1.104"
 let mutable dotnetExePath = "dotnet"
 
@@ -43,28 +42,22 @@ let runDotnet workingDir args =
 // Targets
 // --------------------------------------------------------------------------------------
 
-Target "Clean" (fun _ ->
-    CleanDirs [buildDir]
-)
-
+// TODO will have a look at CI/CD tools - if they all have containers with dotnet cli
+// I'll just make it a requirment and delete manual tool handling
 Target "InstallDotNetCLI" (fun _ ->
     dotnetExePath <- DotNetCli.InstallDotNetSDK dotnetcliVersion
 )
 
 Target "Restore" (fun _ ->
-    appReferences
-    |> Seq.iter (fun p ->
-        let dir = System.IO.Path.GetDirectoryName p
-        runDotnet dir "restore"
-    )
+    DotNetCli.Restore id
+)
+
+Target "Clean" (fun _ ->
+    DotNetCli.RunCommand id "clean"
 )
 
 Target "Build" (fun _ ->
-    appReferences
-    |> Seq.iter (fun p ->
-        let dir = System.IO.Path.GetDirectoryName p
-        runDotnet dir "build"
-    )
+    DotNetCli.Build id
 )
 
 // --------------------------------------------------------------------------------------
@@ -72,7 +65,6 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 "Clean"
-  ==> "InstallDotNetCLI"
   ==> "Restore"
   ==> "Build"
 
