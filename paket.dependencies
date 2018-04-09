@@ -1,0 +1,10 @@
+source https://api.nuget.org/v3/index.json
+storage: none
+
+nuget FSharp.Core
+
+group Build
+source https://api.nuget.org/v3/index.json
+
+nuget FAKE
+nuget Grpc.Tools
