@@ -10,7 +10,6 @@
 #load "GraknUtil.fs"
 
 open System.Threading
-open System.Threading.Tasks
 
 open Grpc.Core
 
@@ -20,40 +19,81 @@ open Ai.Grakn.Rpc.Generated
 
 let graknClient = Grakn.GraknClient(channel)
 
-let tx = graknClient.Tx()
+type GraknTransaction = AsyncDuplexStreamingCall<TxRequest, TxResponse>
 
-let listenToResponses () = async {
-    let rec listenToResponses isNext = async {
-        match isNext with
-        | true ->
-            let resp = tx.ResponseStream.Current
-            let qr = resp.QueryResult
-            let d = resp.Done
-            let ii = resp.IteratorId
-            printfn "QueryResult %A Done %A IteratorId %A" qr d ii
-            let! n = tx.ResponseStream.MoveNext(CancellationToken.None) |> Async.AwaitTask
-            return! listenToResponses n
-        | false -> ()
-    }
+let getResponse (tx : GraknTransaction) = async {
     let! n = tx.ResponseStream.MoveNext(CancellationToken.None) |> Async.AwaitTask
-    return! listenToResponses n
+    let resp =
+        match n with
+        | true ->
+            Some tx.ResponseStream.Current
+        | false ->
+            None
+    return resp
 }
 
 open FsGrakn.Util
 
-let o = openRequest "academy" Read
+type ResponseCase = TxResponse.ResponseOneofCase
+
+let getNewTx (keySpace : string) =
+    let tx = graknClient.Tx()
+    let o = openRequest keySpace Read
+
+    async {
+        do! tx.RequestStream.WriteAsync o |> Async.AwaitTask
+        let! response = getResponse tx
+        
+        let txToReturn = 
+            match response with
+            | Some r ->
+                match r.ResponseCase with
+                | ResponseCase.Done -> tx
+                | _ -> failwith "Nope" // TODO think about error handling
+            | None -> failwith "Nope"
+
+        return txToReturn
+    }
+
+let resolveIterator (tx : GraknTransaction) (iteratorId : IteratorId) =
+    async {
+        let rec resolveIterator (results : TxResponse list) (itId : IteratorId) (resp : TxResponse) =
+            match resp.ResponseCase with
+            | ResponseCase.Done -> async { return results }
+            | _ ->
+                async {
+                    let nr = nextRequest itId
+                    do! tx.RequestStream.WriteAsync nr |> Async.AwaitTask
+                    let! response = getResponse tx
+                    match response with
+                    | Some r ->
+                        return! resolveIterator (r::results) itId r
+                    | None -> return results
+                }
+
+        let nr = nextRequest iteratorId
+        do! tx.RequestStream.WriteAsync nr |> Async.AwaitTask
+        let! response = getResponse tx
+        match response with
+        | Some r ->
+            return! resolveIterator [] iteratorId r
+        | None -> return []
+    }
+
+let tx = getNewTx "academy" |> Async.RunSynchronously
+
 let q = defaultExecQueryRequest "match $x isa company; limit 2; get;"
-
-let cts = CancellationTokenSource()
-Async.StartAsTask(listenToResponses(), TaskCreationOptions.None, cts.Token)
-
-tx.RequestStream.WriteAsync(o)
-|> Async.AwaitTask
-|> Async.RunSynchronously
 
 tx.RequestStream.WriteAsync(q)
 |> Async.AwaitTask
 |> Async.RunSynchronously
 
-cts.Cancel()
+let response = getResponse tx |> Async.RunSynchronously
+
+let results =
+    match response with
+    | Some r ->
+        resolveIterator tx r.IteratorId |> Async.RunSynchronously
+    | None -> []
+
 channel.ShutdownAsync().Wait()

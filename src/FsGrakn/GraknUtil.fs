@@ -26,3 +26,7 @@ let execQueryRequest (inferring : bool) (query : string) =
     TxRequest(ExecQuery = ExecQuery(Query = query, Infer = infer))
 
 let defaultExecQueryRequest = execQueryRequest true
+
+let nextRequest (iteratorId : IteratorId) =
+    let nxt = Next (IteratorId = iteratorId)
+    TxRequest (Next = nxt)
