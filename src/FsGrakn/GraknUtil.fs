@@ -1,11 +1,32 @@
 module FsGrakn.Util
 
 open Ai.Grakn.Rpc.Generated
+open Grpc.Core
+
+type GraknTransaction = AsyncDuplexStreamingCall<TxRequest, TxResponse>
+
+type ResponseCase = TxResponse.ResponseOneofCase
 
 type TransactionType =
     | Read
     | Write
     | Batch
+
+type GraknQuery =
+    | Inferring of string
+    | NonInferring of string
+
+type GraknResponse =
+    | Done
+    | ResultGraph of TxResponse list
+    | ErrorResponse of string
+
+let getChannel (credentialConfig : ChannelCredentials) (port : string) (host :string) =
+    let hostPort = sprintf "%s:%s" host port
+    Channel(hostPort, credentialConfig)
+
+let getDefaultChannel =
+    getChannel ChannelCredentials.Insecure "48555"
 
 let openRequest (keyspace : string) (txType : TransactionType) =
     let tt =

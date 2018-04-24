@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="GraknUtil.fs" />
     <Compile Include="FsGrakn.fs" />
+    <Compile Include="GraknNet.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
