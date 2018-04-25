@@ -1,4 +1,4 @@
-﻿namespace GraknNet
+﻿namespace FsGrakn.CSharp
 
 (*
     the plan is to have a OO wrapper for the functional implementation in FsGrakn.fs here

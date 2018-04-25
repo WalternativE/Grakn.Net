@@ -2,11 +2,13 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Grakn.Net\Grakn.Net.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.fs" />
     <Compile Include="GraknUtil.fs" />
     <Compile Include="FsGrakn.fs" />
     <Compile Include="GraknNet.fs" />

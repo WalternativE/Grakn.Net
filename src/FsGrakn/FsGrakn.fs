@@ -1,11 +1,5 @@
 namespace FsGrakn
 
-// I'll just leave this here until I get the AssemblyInfo file configured
-open System.Runtime.CompilerServices
-
-[<assembly: InternalsVisibleTo("FsGrakn.Test")>]
-do()
-
 module Client =
 
     open Util
@@ -64,6 +58,18 @@ module Client =
             return txToReturn
         }
 
+    let private convertAnswer (answer : Answer) =
+        () 
+
+    let private convert (responses : TxResponse list) =
+        responses
+        |> List.map (fun res ->
+            match res.ResponseCase with
+            | ResponseCase.QueryResult -> 
+                match res.QueryResult.QueryResultCase with
+                | QueryResponseCase.Answer -> convertAnswer res.QueryResult.Answer
+                | _ -> () )
+
     let private resolveIterator (tx : GraknTransaction) (iteratorId : IteratorId) =
         async {
             let rec resolveIterator (results : TxResponse list) (itId : IteratorId) (resp : TxResponse) =
@@ -85,7 +91,8 @@ module Client =
             let! response = getResponse tx
             match response with
             | Some r ->
-                return! resolveIterator [] iteratorId r
+                return!
+                    resolveIterator [] iteratorId r
             | None -> return []
         }
 
@@ -108,7 +115,9 @@ module Client =
                             let! iterationResult = resolveIterator tx r.IteratorId
                             return iterationResult |> GraknResponse.ResultGraph
                         }
-                    | _ -> async { return GraknResponse.Done } ) // TODO all the rest
+                    | ResponseCase.QueryResult ->
+                        async { return GraknResponse.ResultGraph [ r ] }
+                    | _ -> async { return GraknResponse.ErrorResponse "Unexpected result" })
                 
 
             match resolvedResponse with

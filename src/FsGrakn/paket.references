@@ -1,4 +1,5 @@
 FSharp.Core
+Newtonsoft.Json
 
 # referring to https://github.com/GoogleCloudPlatform/google-cloud-dotnet/issues/1186 and connected issues this seems to be the only fix
 Grpc.Core

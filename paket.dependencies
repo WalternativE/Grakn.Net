@@ -4,6 +4,7 @@ storage: none
 nuget FSharp.Core
 nuget Google.Protobuf
 nuget Grpc.Core
+nuget Newtonsoft.Json
 
 nuget xunit
 nuget Microsoft.NET.Test.Sdk

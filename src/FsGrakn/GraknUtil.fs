@@ -2,11 +2,11 @@ module FsGrakn.Util
 
 open Ai.Grakn.Rpc.Generated
 open Grpc.Core
-open System
 
 type GraknTransaction = AsyncDuplexStreamingCall<TxRequest, TxResponse>
 
 type ResponseCase = TxResponse.ResponseOneofCase
+type QueryResponseCase = QueryResult.QueryResultOneofCase
 
 type TransactionType =
     | Read

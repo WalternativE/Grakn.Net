@@ -11,9 +11,16 @@ open System
 // Build variables
 // --------------------------------------------------------------------------------------
 
-// let appReferences = !! "/**/*.*proj"
-let dotnetcliVersion = "2.1.104"
+let dotnetcliVersion = "2.1.105"
 let mutable dotnetExePath = "dotnet"
+
+open Fake.Git
+
+let appTitle = "FsGrakn"
+let appDescription = ".NET driver for Grakn.AI knowledge graph"
+let author = "Gregor Beyerle - gregor.beyerle@gmail.com"
+let version = "0.0.1.0-alpha"
+let commitHash = Information.getCurrentHash ()
 
 // --------------------------------------------------------------------------------------
 // Helpers
@@ -56,8 +63,29 @@ Target "Clean" (fun _ ->
     DotNetCli.RunCommand id "clean"
 )
 
+open Fake.AssemblyInfoFile
+
+Target "CreateAssemblyInfo" (fun _ ->
+    CreateFSharpAssemblyInfo "./src/FsGrakn/Properties/AssemblyInfo.fs"
+        [ Attribute.Title appTitle
+          Attribute.Version version
+          Attribute.FileVersion version
+          Attribute.Description appDescription
+          Attribute.InternalsVisibleTo "FsGrakn.Test"
+          Attribute.Product appTitle
+          Attribute.Guid "5341159e-5f87-40aa-a5e1-0d7dea3d4fe3"
+          Attribute.Copyright author
+          Attribute.Metadata("githash", commitHash) ]
+)
+
 Target "Build" (fun _ ->
     DotNetCli.Build id
+)
+
+Target "Test" (fun _ ->
+    DotNetCli.Test (fun p ->
+        { p with WorkingDir = "test/FsGrakn.Test"}
+    )
 )
 
 // --------------------------------------------------------------------------------------
@@ -65,7 +93,9 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 "Clean"
-  ==> "Restore"
-  ==> "Build"
+    ==> "Restore"
+    ==> "CreateAssemblyInfo"
+    ==> "Build"
+    ==> "Test"
 
 RunTargetOrDefault "Build"
