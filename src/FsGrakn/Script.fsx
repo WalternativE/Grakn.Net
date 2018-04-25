@@ -11,18 +11,16 @@
 #load "FsGrakn.fs"
 
 open FsGrakn.Util
-open Ai.Grakn.Rpc.Generated
 open FsGrakn.Client
 
-let channel = getDefaultChannel "127.0.0.1"
+do
+    use graknClient = getClient "127.0.0.1"
 
-let graknClient = Grakn.GraknClient(channel)
+    use tx = getTx graknClient "academy" |> Async.RunSynchronously
 
-let tx = getTx graknClient "academy" |> Async.RunSynchronously
+    let q = Inferring "match $x isa company; limit 10; get;"
 
-let q = Inferring "match $x isa company; limit 10; get;"
+    let res =
+        executeQuery tx q |> Async.RunSynchronously
 
-let res =
-    executeQuery tx q |> Async.RunSynchronously
-
-channel.ShutdownAsync().Wait()
+    ()

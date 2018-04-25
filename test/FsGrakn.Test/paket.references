@@ -1,1 +1,8 @@
 FSharp.Core
+
+# referring to https://github.com/GoogleCloudPlatform/google-cloud-dotnet/issues/1186 and connected issues this seems to be the only fix
+Grpc.Core
+
+xunit
+Microsoft.NET.Test.Sdk
+xunit.runner.visualstudio

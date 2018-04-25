@@ -5,6 +5,10 @@ nuget FSharp.Core
 nuget Google.Protobuf
 nuget Grpc.Core
 
+nuget xunit
+nuget Microsoft.NET.Test.Sdk
+nuget xunit.runner.visualstudio
+
 group Build
     source https://api.nuget.org/v3/index.json
 

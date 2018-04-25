@@ -8,7 +8,7 @@ Currently all development happens in this [fsx script](https://github.com/Walter
 
 Things I'm currently thinking about are:
 
-- Concurrency model for working with a Grakn transaction (maybe MailBox Processors, maybe Hopac, maybe Rx.NET, maybe TaskBuilder.fs or just async computation expressions all the way)
+- ~~Concurrency model for working with a Grakn transaction (maybe MailBox Processors, maybe Hopac, maybe Rx.NET, maybe TaskBuilder.fs or just async computation expressions all the way)~~ Went with async computation expressions to stay with the core library
 - DSL for message creation and combination
 - Higher Levle DSL for working with the Knowledge graph
 - F#/C# interfaces for all .NET clients

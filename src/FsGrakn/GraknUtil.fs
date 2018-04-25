@@ -2,6 +2,7 @@ module FsGrakn.Util
 
 open Ai.Grakn.Rpc.Generated
 open Grpc.Core
+open System
 
 type GraknTransaction = AsyncDuplexStreamingCall<TxRequest, TxResponse>
 

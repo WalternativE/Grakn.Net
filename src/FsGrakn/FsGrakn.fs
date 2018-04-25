@@ -1,11 +1,29 @@
 namespace FsGrakn
 
+// I'll just leave this here until I get the AssemblyInfo file configured
+open System.Runtime.CompilerServices
+
+[<assembly: InternalsVisibleTo("FsGrakn.Test")>]
+do()
+
 module Client =
+
     open Util
     open System.Threading
     open Ai.Grakn.Rpc.Generated
+    open Grpc.Core
+    open System
 
-    let getResponse (tx : GraknTransaction) = async {
+    type T (channel : Channel) =
+        let client = Grakn.GraknClient(channel)
+
+        member this.Client = client
+
+        interface IDisposable with
+            member this.Dispose () =
+                channel.ShutdownAsync().Wait()
+
+    let private getResponse (tx : GraknTransaction) = async {
         let! n = tx.ResponseStream.MoveNext(CancellationToken.None) |> Async.AwaitTask
         let resp =
             match n with
@@ -16,14 +34,20 @@ module Client =
         return resp
     }
 
-    let private sendRequest (tx : GraknTransaction) (request : TxRequest) =
+    let internal sendRequest (tx : GraknTransaction) (request : TxRequest) =
         async {
             do! tx.RequestStream.WriteAsync request |> Async.AwaitTask
             return! getResponse tx
         }
 
-    let getTx (graknClient : Grakn.GraknClient) (keySpace : string) =
-        let tx = graknClient.Tx()
+    /// <summary>Creates the client wrapper around a new open channel for a given host. You might want only one of these per program.</summary>
+    let getClient (host : string) =
+        let channel = getDefaultChannel host
+        new T(channel)
+
+    /// <summary>Creates a new transaction - the main unit of operation. Make sure to only bind this with use bindings</summary>
+    let getTx (graknClient : T) (keySpace : string) =
+        let tx = graknClient.Client.Tx()
         let o = openRequest keySpace Read
 
         async {
