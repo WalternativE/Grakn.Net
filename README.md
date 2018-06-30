@@ -21,11 +21,13 @@ If you work on Windows make sure you have .NET framework >= 4.6.1 installed.
 
 On MacOS or Linux you'll need a recent Mono version (>= 5.0 should be fine).
 
-Regardless of your operating system make sure that you have the dotnet sdk (including the dotnet cli) installed (version >= 2 should be ok).
+Regardless of your operating system make sure that you have the dotnet sdk (including the dotnet cli) installed (version >= 2.1 should be ok).
+
+For building the project make sure that you have the `fake-cli` dotnet tool installed. If you don't already have it on your machine execute `dotnet tool install fake-cli -g --version=5.*`.
 
 ## Building/Developing
 
-To restore the dependencies and build the projects execute either `.\build.cmd` or `./build.sh`.
+To restore the dependencies and build the projects execute `fake run build.fsx`.
 
 If you work on Windows Visual Studio 2017 is currently supported. The prefered development environment is Visual Studio Code with the Ionide and Omnisharp plugins installed.
 

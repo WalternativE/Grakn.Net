@@ -806,7 +806,6 @@ NUGET
 GROUP Build
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    FAKE (4.64.11)
     Grpc.Tools (1.10.1)
 
 GROUP Fsi

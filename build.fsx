@@ -1,96 +1,86 @@
-// --------------------------------------------------------------------------------------
-// FAKE build script
-// --------------------------------------------------------------------------------------
+#if BOOTSTRAP
 
-#r "./packages/build/FAKE/tools/FakeLib.dll"
+#r "paket:
+source nuget/dotnetcore
+source https://api.nuget.org/v3/index.json
+nuget Fake.Core.Target
+nuget Fake.Tools.Git
+nuget Fake.DotNet.AssemblyInfoFile
+nuget Fake.DotNet.Cli //"
+#endif
 
-open Fake
-open System
+#load "./.fake/build.fsx/intellisense.fsx"
+
+open Fake.DotNet
+open Fake.Core
+open Fake.Tools
 
 // --------------------------------------------------------------------------------------
 // Build variables
 // --------------------------------------------------------------------------------------
 
-let dotnetcliVersion = "2.1.105"
-let mutable dotnetExePath = "dotnet"
-
-open Fake.Git
 
 let appTitle = "FsGrakn"
 let appDescription = ".NET driver for Grakn.AI knowledge graph"
 let author = "Gregor Beyerle - gregor.beyerle@gmail.com"
 let version = "0.0.1.0-alpha"
-let commitHash = Information.getCurrentHash ()
+let commitHash = Git.Information.getCurrentHash ()
+
+let solutionName = "Grakn.Net.sln"
 
 // --------------------------------------------------------------------------------------
 // Helpers
 // --------------------------------------------------------------------------------------
 
-let run' timeout cmd args dir =
-    if execProcess (fun info ->
-        info.FileName <- cmd
-        if not (String.IsNullOrWhiteSpace dir) then
-            info.WorkingDirectory <- dir
-        info.Arguments <- args
-    ) timeout |> not then
-        failwithf "Error while running '%s' with args: %s" cmd args
+let install = lazy DotNet.install DotNet.Release_2_1_300
 
-let run = run' System.TimeSpan.MaxValue
+let inline dotnetWorkDir wd =
+    DotNet.Options.lift install.Value
+    >> DotNet.Options.withWorkingDirectory wd
 
-let runDotnet workingDir args =
-    let result =
-        ExecProcess (fun info ->
-            info.FileName <- dotnetExePath
-            info.WorkingDirectory <- workingDir
-            info.Arguments <- args) TimeSpan.MaxValue
-    if result <> 0 then failwithf "dotnet %s failed" args
+let inline dotnetSimple arg = DotNet.Options.lift install.Value arg
 
 // --------------------------------------------------------------------------------------
 // Targets
 // --------------------------------------------------------------------------------------
 
-// TODO will have a look at CI/CD tools - if they all have containers with dotnet cli
-// I'll just make it a requirment and delete manual tool handling
-Target "InstallDotNetCLI" (fun _ ->
-    dotnetExePath <- DotNetCli.InstallDotNetSDK dotnetcliVersion
+Target.create "Restore" (fun _ ->
+    DotNet.restore dotnetSimple solutionName
 )
 
-Target "Restore" (fun _ ->
-    DotNetCli.Restore id
+Target.create "Clean" (fun _ ->
+    let procResult =
+        DotNet.exec dotnetSimple "clean" solutionName
+
+    if procResult.ExitCode <> 0 then failwith "Cleaning the solution failed"
 )
 
-Target "Clean" (fun _ ->
-    DotNetCli.RunCommand id "clean"
+Target.create "CreateAssemblyInfo" (fun _ ->
+    AssemblyInfoFile.createFSharp "./src/FsGrakn/Properties/AssemblyInfo.fs"
+        [ AssemblyInfo.Title appTitle
+          AssemblyInfo.Version version
+          AssemblyInfo.FileVersion version
+          AssemblyInfo.Description appDescription
+          AssemblyInfo.InternalsVisibleTo "FsGrakn.Test"
+          AssemblyInfo.Product appTitle
+          AssemblyInfo.Guid "5341159e-5f87-40aa-a5e1-0d7dea3d4fe3"
+          AssemblyInfo.Copyright author
+          AssemblyInfo.Metadata("githash", commitHash) ]
 )
 
-open Fake.AssemblyInfoFile
-
-Target "CreateAssemblyInfo" (fun _ ->
-    CreateFSharpAssemblyInfo "./src/FsGrakn/Properties/AssemblyInfo.fs"
-        [ Attribute.Title appTitle
-          Attribute.Version version
-          Attribute.FileVersion version
-          Attribute.Description appDescription
-          Attribute.InternalsVisibleTo "FsGrakn.Test"
-          Attribute.Product appTitle
-          Attribute.Guid "5341159e-5f87-40aa-a5e1-0d7dea3d4fe3"
-          Attribute.Copyright author
-          Attribute.Metadata("githash", commitHash) ]
+Target.create "Build" (fun _ ->
+    DotNet.build dotnetSimple solutionName
 )
 
-Target "Build" (fun _ ->
-    DotNetCli.Build id
-)
-
-Target "Test" (fun _ ->
-    DotNetCli.Test (fun p ->
-        { p with WorkingDir = "test/FsGrakn.Test"}
-    )
+Target.create "Test" (fun _ ->
+    DotNet.test (dotnetWorkDir "test") "FsGrakn.Test"
 )
 
 // --------------------------------------------------------------------------------------
 // Build order
 // --------------------------------------------------------------------------------------
+
+open Fake.Core.TargetOperators
 
 "Clean"
     ==> "Restore"
@@ -98,4 +88,4 @@ Target "Test" (fun _ ->
     ==> "Build"
     ==> "Test"
 
-RunTargetOrDefault "Build"
+Target.runOrDefault "Build"
