@@ -1,5 +1,3 @@
-#if BOOTSTRAP
-
 #r "paket:
 source nuget/dotnetcore
 source https://api.nuget.org/v3/index.json
@@ -7,7 +5,6 @@ nuget Fake.Core.Target
 nuget Fake.Tools.Git
 nuget Fake.DotNet.AssemblyInfoFile
 nuget Fake.DotNet.Cli //"
-#endif
 
 #load "./.fake/build.fsx/intellisense.fsx"
 
@@ -32,7 +29,7 @@ let solutionName = "Grakn.Net.sln"
 // Helpers
 // --------------------------------------------------------------------------------------
 
-let install = lazy DotNet.install DotNet.Release_2_1_300
+let install = lazy DotNet.install DotNet.Versions.FromGlobalJson
 
 let inline dotnetWorkDir wd =
     DotNet.Options.lift install.Value

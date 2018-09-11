@@ -1,19 +1,19 @@
 source https://api.nuget.org/v3/index.json
 storage: none
 
-nuget FSharp.Core
-nuget Google.Protobuf
-nuget Grpc.Core
-nuget Newtonsoft.Json
+nuget FSharp.Core 4.5.2
+nuget Google.Protobuf 3.6.1
+nuget Grpc.Core 1.14.2
+nuget Newtonsoft.Json 11.0.2
 
-nuget xunit
-nuget Microsoft.NET.Test.Sdk
-nuget xunit.runner.visualstudio
+nuget xunit 2.4.0
+nuget Microsoft.NET.Test.Sdk 15.8.0
+nuget xunit.runner.visualstudio 2.4.0
 
 group Build
     source https://api.nuget.org/v3/index.json
 
-    nuget Grpc.Tools
+    nuget Grpc.Tools 1.14.2
 
 # this is a hack as pure netstandard2.0 projects still have problems in FSI
 # we need these packages to get the correct runtime references in interactive sessions

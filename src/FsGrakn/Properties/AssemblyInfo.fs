@@ -12,7 +12,7 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyProductAttribute("FsGrakn")>]
 [<assembly: GuidAttribute("5341159e-5f87-40aa-a5e1-0d7dea3d4fe3")>]
 [<assembly: AssemblyCopyrightAttribute("Gregor Beyerle - gregor.beyerle@gmail.com")>]
-[<assembly: AssemblyMetadataAttribute("githash","b1609b")>]
+[<assembly: AssemblyMetadataAttribute("githash","fffadc")>]
 do ()
 
 module internal AssemblyVersionInformation =
@@ -24,4 +24,4 @@ module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyProduct = "FsGrakn"
     let [<Literal>] Guid = "5341159e-5f87-40aa-a5e1-0d7dea3d4fe3"
     let [<Literal>] AssemblyCopyright = "Gregor Beyerle - gregor.beyerle@gmail.com"
-    let [<Literal>] AssemblyMetadata_githash = "b1609b"
+    let [<Literal>] AssemblyMetadata_githash = "fffadc"
